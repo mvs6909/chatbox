@@ -144,6 +144,28 @@ function Main() {
         document.getElementById('message-input')?.focus() // better way?
     }, [messageInput])
 
+    // Keyboard shortcut for creating new chat (Cmd+N on Mac, Ctrl+N on Windows)
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            // Check for Cmd+N (Mac) or Ctrl+N (Windows/Linux)
+            if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
+                event.preventDefault() // Prevent default browser behavior
+                store.createEmptyChatSession()
+                // Focus the message input box after creating new chat
+                setTimeout(() => {
+                    document.getElementById('message-input')?.focus()
+                }, 100)
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+
+        // Cleanup listener on component unmount
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [store])
+
     return (
         <Box sx={{
             height: '100%',
@@ -222,7 +244,7 @@ function Main() {
                                 New Chat
                             </ListItemText>
                             <Typography variant="body2" color="text.secondary">
-                                {/* ⌘N */}
+                                {navigator.userAgent.toLowerCase().includes('mac') ? '⌘N' : 'Ctrl+N'}
                             </Typography>
                         </MenuItem>
                         <MenuItem onClick={() => {
