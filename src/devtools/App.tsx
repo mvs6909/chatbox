@@ -21,6 +21,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import * as prompts from './prompts'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
 import CleanWidnow from './CleanWindow';
+import DeleteSessionDialog from './DeleteSessionDialog';
 import { ThemeSwitcherProvider } from './theme/ThemeSwitcher';
 
 const { useEffect, useState } = React
@@ -89,6 +90,8 @@ function Main() {
     const [configureChatConfig, setConfigureChatConfig] = React.useState<Session | null>(null);
 
     const [sessionClean, setSessionClean] = React.useState<Session | null>(null);
+
+    const [sessionDelete, setSessionDelete] = React.useState<Session | null>(null);
 
     const generateName = async (session: Session) => {
         client.replay(
@@ -200,7 +203,7 @@ function Main() {
                                             store.switchCurrentSession(session)
                                             document.getElementById('message-input')?.focus() // better way?
                                         }}
-                                        deleteMe={() => store.deleteChatSession(session)}
+                                        deleteMe={() => setSessionDelete(session)}
                                         copyMe={() => {
                                             const newSession = createSession(session.name + ' Copyed')
                                             newSession.messages = session.messages
@@ -386,6 +389,18 @@ function Main() {
                                 setSessionClean(null)
                             }}
                             close={() => setSessionClean(null)}
+                        />
+                    )
+                }
+                {
+                    sessionDelete !== null && (
+                        <DeleteSessionDialog open={sessionDelete !== null}
+                            session={sessionDelete}
+                            confirm={(session) => {
+                                store.deleteChatSession(session)
+                                setSessionDelete(null)
+                            }}
+                            close={() => setSessionDelete(null)}
                         />
                     )
                 }
