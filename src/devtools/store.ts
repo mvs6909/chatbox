@@ -69,14 +69,22 @@ export async function writeSettings(settings: Settings) {
 // session store
 
 export async function readSessions(): Promise<Session[]> {
-    let sessions = await readStore('chat-sessions')
+    const sessions = await readStore('chat-sessions')
     if (!sessions) {
-        return defaults.sessions
+        // Add draftMessage field to default sessions for backward compatibility
+        return defaults.sessions.map(session => ({
+            ...session,
+            draftMessage: session.draftMessage || ''
+        }))
     }
     if (sessions.length === 0) {
         return [createSession()]
     }
-    return sessions
+    // Add draftMessage field to existing sessions for backward compatibility
+    return sessions.map((session: Session) => ({
+        ...session,
+        draftMessage: session.draftMessage || ''
+    }))
 }
 
 export async function writeSessions(sessions: Session[]) {

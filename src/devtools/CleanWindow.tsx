@@ -14,7 +14,7 @@ interface Props {
 export default function CleanWindow(props: Props) {
     const clean = () => {
         const messages = props.session.messages.filter(msg => msg.role === 'system')
-        props.save({ ...props.session, messages })
+        props.save({ ...props.session, messages, draftMessage: '' })
     }
     return (
         <Dialog open={props.open} onClose={props.close}>
