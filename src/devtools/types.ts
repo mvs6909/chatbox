@@ -10,9 +10,10 @@ export interface Session{
     id: string
     name: string
     messages: Message[]
+    draftMessage?: string
 }
 
-export function createMessage(role: ChatCompletionRequestMessageRoleEnum = ChatCompletionRequestMessageRoleEnum.User, content: string = ''): Message {
+export function createMessage(role: ChatCompletionRequestMessageRoleEnum = ChatCompletionRequestMessageRoleEnum.User, content = ''): Message {
     return {
         id: uuidv4(),
         content: content,
@@ -20,11 +21,12 @@ export function createMessage(role: ChatCompletionRequestMessageRoleEnum = ChatC
     }
 }
 
-export function createSession(name: string = "Untitled"): Session {
+export function createSession(name = "Untitled"): Session {
     return {
         id: uuidv4(),
         name: name,
         messages: [],
+        draftMessage: '',
     }
 }
 

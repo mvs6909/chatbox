@@ -23,7 +23,7 @@ import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
 import CleanWidnow from './CleanWindow';
 import { ThemeSwitcherProvider } from './theme/ThemeSwitcher';
 
-const { useEffect, useState } = React
+const { useEffect, useState, useRef } = React
 
 function Main() {
     const store = useStore()
@@ -140,9 +140,34 @@ function Main() {
     }
 
     const [ messageInput, setMessageInput ] = useState('')
+    const previousSessionIdRef = useRef<string | null>(null)
+    const messageInputRef = useRef<string>('')
+
+    // Keep ref in sync with messageInput
     useEffect(() => {
-        document.getElementById('message-input')?.focus() // better way?
+        messageInputRef.current = messageInput
     }, [messageInput])
+
+    // Handle session switching
+    useEffect(() => {
+        const previousSessionId = previousSessionIdRef.current
+        const currentSessionId = store.currentSession.id
+
+        // If switching sessions (not the initial load)
+        if (previousSessionId && previousSessionId !== currentSessionId) {
+            // Save draft from the previous session
+            const previousSession = store.chatSessions.find(s => s.id === previousSessionId)
+            if (previousSession) {
+                previousSession.draftMessage = messageInputRef.current
+                store.updateChatSession(previousSession)
+            }
+        }
+
+        // Restore draft for current session
+        setMessageInput(store.currentSession.draftMessage || '')
+        previousSessionIdRef.current = currentSessionId
+        document.getElementById('message-input')?.focus()
+    }, [store.currentSession.id])
 
     return (
         <Box sx={{
@@ -348,6 +373,7 @@ function Main() {
                                     const promptsMsgs = [...store.currentSession.messages, newUserMsg]
                                     const newAssistantMsg = createMessage('assistant', '....')
                                     store.currentSession.messages = [...store.currentSession.messages, newUserMsg, newAssistantMsg]
+                                    store.currentSession.draftMessage = ''
                                     store.updateChatSession(store.currentSession)
                                     generate(store.currentSession, promptsMsgs, newAssistantMsg)
                                     setScrollToMsg({ msgId: newAssistantMsg.id, smooth: true })
