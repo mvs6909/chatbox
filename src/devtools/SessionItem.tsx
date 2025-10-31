@@ -13,6 +13,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import StyledMenu from './StyledMenu';
 
 const { useState } = React
@@ -24,10 +25,11 @@ export interface Props {
     deleteMe: () => void
     copyMe: () => void
     editMe: () => void
+    exportMe: () => void
 }
 
 export default function SessionItem(props: Props) {
-    const { session, selected, switchMe, deleteMe, copyMe, editMe } = props
+    const { session, selected, switchMe, deleteMe, copyMe, editMe, exportMe } = props
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -77,6 +79,14 @@ export default function SessionItem(props: Props) {
                 }} disableRipple>
                     <FileCopyIcon fontSize='small' />
                     Copy
+                </MenuItem>
+
+                <MenuItem key={session.id + 'export'} onClick={() => {
+                    exportMe()
+                    handleClose()
+                }} disableRipple>
+                    <FileDownloadIcon fontSize='small' />
+                    Export
                 </MenuItem>
 
                 <Divider sx={{ my: 0.5 }} />
