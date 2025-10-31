@@ -83,6 +83,143 @@ export async function writeSessions(sessions: Session[]) {
     return writeStore('chat-sessions', sessions)
 }
 
+// Export/Import functionality
+
+export interface ExportData {
+    version: string;
+    exportDate: string;
+    session: Session;
+}
+
+export async function exportSession(session: Session): Promise<{ success: boolean; error?: string }> {
+    const exportData: ExportData = {
+        version: '1.0',
+        exportDate: new Date().toISOString(),
+        session: session,
+    };
+
+    // Create a safe filename from the session name
+    const safeFileName = session.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const dateStr = new Date().toISOString().split('T')[0];
+
+    const options = {
+        title: 'Export Chat Session',
+        defaultPath: `${safeFileName}-${dateStr}.json`,
+        filters: [
+            { name: 'JSON Files', extensions: ['json'] },
+            { name: 'All Files', extensions: ['*'] },
+        ],
+    };
+
+    const result = await (window as any).api.invoke('showSaveDialog', options);
+
+    if (result.canceled || !result.filePath) {
+        return { success: false, error: 'Export cancelled' };
+    }
+
+    const writeResult = await (window as any).api.invoke('writeFile', result.filePath, JSON.stringify(exportData, null, 2));
+
+    if (!writeResult.success) {
+        return { success: false, error: writeResult.error };
+    }
+
+    return { success: true };
+}
+
+export function validateImportData(data: any): { valid: boolean; error?: string } {
+    if (!data || typeof data !== 'object') {
+        return { valid: false, error: 'Invalid JSON format' };
+    }
+
+    if (!data.session || typeof data.session !== 'object') {
+        return { valid: false, error: 'Missing or invalid session object' };
+    }
+
+    const session = data.session;
+
+    if (!session.id || typeof session.id !== 'string') {
+        return { valid: false, error: 'Session: Missing or invalid \'id\' field' };
+    }
+
+    if (!session.name || typeof session.name !== 'string') {
+        return { valid: false, error: 'Session: Missing or invalid \'name\' field' };
+    }
+
+    if (!session.messages || !Array.isArray(session.messages)) {
+        return { valid: false, error: 'Session: Missing or invalid \'messages\' array' };
+    }
+
+    for (let j = 0; j < session.messages.length; j++) {
+        const message = session.messages[j];
+
+        if (!message.id || typeof message.id !== 'string') {
+            return { valid: false, error: `Message ${j + 1}: Missing or invalid 'id' field` };
+        }
+
+        if (!message.role || typeof message.role !== 'string') {
+            return { valid: false, error: `Message ${j + 1}: Missing or invalid 'role' field` };
+        }
+
+        if (message.content === undefined || typeof message.content !== 'string') {
+            return { valid: false, error: `Message ${j + 1}: Missing or invalid 'content' field` };
+        }
+    }
+
+    return { valid: true };
+}
+
+export async function importSession(existingSessions: Session[]): Promise<{ success: boolean; session?: Session; error?: string }> {
+    const options = {
+        title: 'Import Chat Session',
+        filters: [
+            { name: 'JSON Files', extensions: ['json'] },
+            { name: 'All Files', extensions: ['*'] },
+        ],
+        properties: ['openFile'],
+    };
+
+    const result = await (window as any).api.invoke('showOpenDialog', options);
+
+    if (result.canceled || !result.filePaths || result.filePaths.length === 0) {
+        return { success: false, error: 'Import cancelled' };
+    }
+
+    try {
+        const readResult = await (window as any).api.invoke('readFile', result.filePaths[0]);
+
+        if (!readResult.success) {
+            return { success: false, error: readResult.error };
+        }
+
+        const importData = JSON.parse(readResult.content);
+
+        const validation = validateImportData(importData);
+        if (!validation.valid) {
+            return { success: false, error: validation.error };
+        }
+
+        // Handle duplicate IDs by generating new ones
+        const existingIds = new Set(existingSessions.map(s => s.id));
+        let importedSession = importData.session;
+
+        if (existingIds.has(importedSession.id)) {
+            // Generate a new ID for duplicate session
+            importedSession = {
+                ...importedSession,
+                id: uuidv4(),
+                name: `${importedSession.name} (imported)`,
+            };
+        }
+
+        return { success: true, session: importedSession };
+    } catch (error) {
+        if (error instanceof SyntaxError) {
+            return { success: false, error: 'Invalid JSON file format' };
+        }
+        return { success: false, error: `Import failed: ${error.message}` };
+    }
+}
+
 // react hook
 
 export default function useStore() {
@@ -168,6 +305,25 @@ export default function useStore() {
         _setToasts(toasts.filter((t) => t.id !== id))
     }
 
+    const handleExportSession = async (session: Session) => {
+        const result = await exportSession(session);
+        if (result.success) {
+            addToast('Session exported successfully!');
+        } else if (result.error && result.error !== 'Export cancelled') {
+            addToast(`Export failed: ${result.error}`);
+        }
+    };
+
+    const handleImportSession = async () => {
+        const result = await importSession(chatSessions);
+        if (result.success && result.session) {
+            createChatSession(result.session);
+            addToast('Session imported successfully!');
+        } else if (result.error && result.error !== 'Import cancelled') {
+            addToast(`Import failed: ${result.error}`);
+        }
+    };
+
     return {
         version,
 
@@ -187,5 +343,8 @@ export default function useStore() {
         toasts,
         addToast,
         removeToast,
+
+        handleExportSession,
+        handleImportSession,
     }
 }

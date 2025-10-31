@@ -18,6 +18,8 @@ import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutline
 import SettingsIcon from '@mui/icons-material/Settings';
 import AddIcon from '@mui/icons-material/Add';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 import * as prompts from './prompts'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
 import CleanWidnow from './CleanWindow';
@@ -207,6 +209,7 @@ function Main() {
                                             store.createChatSession(newSession, ix)
                                         }}
                                         editMe={() => setConfigureChatConfig(session)}
+                                        exportMe={() => store.handleExportSession(session)}
                                     />
                                 ))
                             }
@@ -225,6 +228,17 @@ function Main() {
                                 {/* ⌘N */}
                             </Typography>
                         </MenuItem>
+                        <MenuItem onClick={store.handleImportSession}>
+                            <ListItemIcon>
+                                <IconButton><FileUploadIcon fontSize="small" /></IconButton>
+                            </ListItemIcon>
+                            <ListItemText>
+                                Import Session
+                            </ListItemText>
+                        </MenuItem>
+
+                        <Divider />
+
                         <MenuItem onClick={() => {
                             setOpenSettingWindow(true)
                         }}
