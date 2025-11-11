@@ -31,6 +31,7 @@ const onReady = (): void => {
         webPreferences: {
             preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
             nodeIntegration: true,
+            webSecurity: false, // Allow CORS for API requests
         },
     });
 

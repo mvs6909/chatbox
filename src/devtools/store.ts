@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { Settings, createSession, Session, Message } from './types'
+import { Settings, createSession, Session, Message, AIProvider } from './types'
 import * as defaults from './defaults'
 import * as openai from './openai-node'
 import { v4 as uuidv4 } from 'uuid';
 import { ThemeMode } from './theme';
+import { getDefaultModelForProvider, getDefaultHostForProvider } from './modelDefaults';
 
 // ipc
 
@@ -28,8 +29,10 @@ export const shouldUseDarkColors = (): Promise<boolean> => {
 
 export function getDefaultSettings(): Settings {
     return {
-        openaiKey: '',
+        apiKey: '',
         apiHost: 'https://api.openai.com',
+        provider: AIProvider.OpenAI,
+        selectedModel: 'gpt-3.5-turbo',
         showWordCount: false,
         showTokenCount: false,
         theme: ThemeMode.System,
@@ -41,19 +44,51 @@ export async function readSettings(): Promise<Settings> {
     if (!setting) {
         return getDefaultSettings()
     }
+
+    let needsMigration = false;
+
+    // MIGRATION: Rename openaiKey to apiKey for backward compatibility
+    if (setting.openaiKey && !setting.apiKey) {
+        setting.apiKey = setting.openaiKey
+        delete setting.openaiKey
+        needsMigration = true
+    }
+
+    // MIGRATION: Add provider field (default to OpenAI for existing users)
+    if (!setting.provider) {
+        setting.provider = AIProvider.OpenAI
+        needsMigration = true
+    }
+
+    // MIGRATION: Add selectedModel field
+    if (!setting.selectedModel) {
+        setting.selectedModel = getDefaultModelForProvider(setting.provider)
+        needsMigration = true
+    }
+
     // 兼容早期版本
     if (!setting.apiHost) {
-        setting.apiHost = getDefaultSettings().apiHost
+        setting.apiHost = getDefaultHostForProvider(setting.provider)
+        needsMigration = true
     }
     if (setting.showWordCount === undefined) {
         setting.showWordCount = getDefaultSettings().showWordCount
+        needsMigration = true
     }
     if (setting.showTokenCount === undefined) {
         setting.showTokenCount = getDefaultSettings().showTokenCount
+        needsMigration = true
     }
     if (setting.theme === undefined) {
         setting.theme = getDefaultSettings().theme;
+        needsMigration = true
     }
+
+    // Save migrated settings
+    if (needsMigration) {
+        await writeSettings(setting)
+    }
+
     return setting
 }
 
@@ -69,7 +104,7 @@ export async function writeSettings(settings: Settings) {
 // session store
 
 export async function readSessions(): Promise<Session[]> {
-    let sessions = await readStore('chat-sessions')
+    const sessions = await readStore('chat-sessions')
     if (!sessions) {
         return defaults.sessions
     }
@@ -98,7 +133,7 @@ export default function useStore() {
     useEffect(() => {
         readSettings().then((settings) => {
             _setSettings(settings)
-            if (settings.openaiKey === '') {
+            if (settings.apiKey === '') {
                 setNeedSetting(true)
             }
         })

@@ -20,10 +20,16 @@ import type { AxiosPromise, AxiosInstance, AxiosRequestConfig } from 'axios';
 import globalAxios from 'axios';
 
 export let BASE_PATH = "https://api.openai.com/v1".replace(/\/+$/, "");
-export function setHost(host: string) {
+export function setHost(host: string, appendV1: boolean = true) {
     host = host.trim()
     host = host.replace(/\/+$/, "");
-    BASE_PATH = `${host}/v1`.replace(/\/+$/, "");
+
+    // Only append /v1 if requested and not already present
+    if (appendV1 && !host.endsWith('/v1')) {
+        BASE_PATH = `${host}/v1`.replace(/\/+$/, "");
+    } else {
+        BASE_PATH = host;
+    }
 }
 
 /**
