@@ -168,6 +168,22 @@ export default function useStore() {
         _setToasts(toasts.filter((t) => t.id !== id))
     }
 
+    const togglePinSession = (session: Session) => {
+        const pinnedCount = chatSessions.filter(s => s.isPinned).length
+
+        // If trying to pin and already have 3 pinned, show error
+        if (!session.isPinned && pinnedCount >= 3) {
+            addToast('Maximum 3 chats can be pinned')
+            return
+        }
+
+        const updatedSession = {
+            ...session,
+            isPinned: !session.isPinned
+        }
+        updateChatSession(updatedSession)
+    }
+
     return {
         version,
 
@@ -180,6 +196,7 @@ export default function useStore() {
         updateChatSession,
         deleteChatSession,
         createEmptyChatSession,
+        togglePinSession,
 
         currentSession,
         switchCurrentSession,

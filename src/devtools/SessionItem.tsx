@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import './App.css';
 import {
     ListItemText, ListItemAvatar, MenuItem, Divider,
-    Avatar, IconButton, Button, TextField, Popper, Fade, Typography, ListItemIcon,
+    Avatar, IconButton, Button, TextField, Popper, Fade, Typography, ListItemIcon, Tooltip,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Session } from './types'
@@ -13,6 +13,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import ChatBubbleOutlineOutlinedIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import StyledMenu from './StyledMenu';
 
 const { useState } = React
@@ -24,10 +26,11 @@ export interface Props {
     deleteMe: () => void
     copyMe: () => void
     editMe: () => void
+    togglePin: () => void
 }
 
 export default function SessionItem(props: Props) {
-    const { session, selected, switchMe, deleteMe, copyMe, editMe } = props
+    const { session, selected, switchMe, deleteMe, copyMe, editMe, togglePin } = props
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -52,9 +55,20 @@ export default function SessionItem(props: Props) {
                     {session.name}
                 </Typography>
             </ListItemText>
-            <IconButton onClick={handleClick}>
-                <MoreHorizOutlinedIcon />
+            <IconButton
+                onClick={(e) => {
+                    e.stopPropagation()
+                    togglePin()
+                }}
+                size="small"
+            >
+                {session.isPinned ? <PushPinIcon fontSize="small" color="primary" /> : <PushPinOutlinedIcon fontSize="small" />}
             </IconButton>
+            <Tooltip title="Session options">
+                <IconButton onClick={handleClick}>
+                    <MoreHorizOutlinedIcon />
+                </IconButton>
+            </Tooltip>
             <StyledMenu
                 MenuListProps={{
                     'aria-labelledby': 'long-button',
