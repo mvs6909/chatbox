@@ -92,11 +92,13 @@ function Main() {
 
     const generateName = async (session: Session) => {
         client.replay(
-            store.settings.openaiKey,
+            store.settings.provider,
+            store.settings.apiKey,
             store.settings.apiHost,
+            session.model || store.settings.selectedModel,
             prompts.nameConversation(session.messages.slice(0, 3)),
             (name) => {
-                name = name.replace(/['"“”]/g, '')
+                name = name.replace(/['"""]/g, '')
                 session.name = name
                 store.updateChatSession(session)
             },
@@ -108,8 +110,10 @@ function Main() {
 
     const generate = async (session: Session, promptMsgs: Message[], targetMsg: Message) => {
         await client.replay(
-            store.settings.openaiKey,
+            store.settings.provider,
+            store.settings.apiKey,
             store.settings.apiHost,
+            session.model || store.settings.selectedModel,
             promptMsgs,
             (text) => {
                 for (let i = 0; i < session.messages.length; i++) {

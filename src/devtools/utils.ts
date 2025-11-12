@@ -7,14 +7,14 @@
  * 
  * https://github.com/yuehu/word-count
  */
-var pattern = /[a-zA-Z0-9_\u0392-\u03c9\u00c0-\u00ff\u0600-\u06ff\u0400-\u04ff]+|[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\uac00-\ud7af]+/g;
+const pattern = /[a-zA-Z0-9_\u0392-\u03c9\u00c0-\u00ff\u0600-\u06ff\u0400-\u04ff]+|[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\uac00-\ud7af]+/g;
 export function countWord(data: string): number {
-    var m = data.match(pattern);
-    var count = 0;
+    const m = data.match(pattern);
+    let count = 0;
     if (!m) {
         return 0;
     }
-    for (var i = 0; i < m.length; i++) {
+    for (let i = 0; i < m.length; i++) {
         if (m[i].charCodeAt(0) >= 0x4e00) {
             count += m[i].length;
         } else {
@@ -22,7 +22,7 @@ export function countWord(data: string): number {
         }
     }
     return count;
-};
+}
 
 import GPT3Tokenizer from 'gpt3-tokenizer';
 const tokenizer = new GPT3Tokenizer({ type: 'gpt3' });
