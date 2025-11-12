@@ -10,6 +10,7 @@ export interface Session{
     id: string
     name: string
     messages: Message[]
+    isPinned?: boolean
 }
 
 export function createMessage(role: ChatCompletionRequestMessageRoleEnum = ChatCompletionRequestMessageRoleEnum.User, content: string = ''): Message {
@@ -25,6 +26,7 @@ export function createSession(name: string = "Untitled"): Session {
         id: uuidv4(),
         name: name,
         messages: [],
+        isPinned: false,
     }
 }
 

@@ -193,22 +193,30 @@ function Main() {
                             }
                         >
                             {
-                                store.chatSessions.map((session, ix) => (
-                                    <SessionItem selected={store.currentSession.id === session.id}
-                                        session={session}
-                                        switchMe={() => {
-                                            store.switchCurrentSession(session)
-                                            document.getElementById('message-input')?.focus() // better way?
-                                        }}
-                                        deleteMe={() => store.deleteChatSession(session)}
-                                        copyMe={() => {
-                                            const newSession = createSession(session.name + ' Copyed')
-                                            newSession.messages = session.messages
-                                            store.createChatSession(newSession, ix)
-                                        }}
-                                        editMe={() => setConfigureChatConfig(session)}
-                                    />
-                                ))
+                                store.chatSessions
+                                    .sort((a, b) => {
+                                        // Sort pinned sessions first
+                                        if (a.isPinned && !b.isPinned) return -1
+                                        if (!a.isPinned && b.isPinned) return 1
+                                        return 0
+                                    })
+                                    .map((session, ix) => (
+                                        <SessionItem selected={store.currentSession.id === session.id}
+                                            session={session}
+                                            switchMe={() => {
+                                                store.switchCurrentSession(session)
+                                                document.getElementById('message-input')?.focus() // better way?
+                                            }}
+                                            deleteMe={() => store.deleteChatSession(session)}
+                                            copyMe={() => {
+                                                const newSession = createSession(session.name + ' Copyed')
+                                                newSession.messages = session.messages
+                                                store.createChatSession(newSession, ix)
+                                            }}
+                                            editMe={() => setConfigureChatConfig(session)}
+                                            togglePin={() => store.togglePinSession(session)}
+                                        />
+                                    ))
                             }
                         </MenuList>
 
