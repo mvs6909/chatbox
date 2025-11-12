@@ -7,7 +7,7 @@ import {
     Toolbar, Box, Badge, Snackbar,
     List, ListSubheader, ListItemText, MenuList,
     IconButton, Button, Stack, Grid, MenuItem, ListItemIcon, Typography, Divider,
-    TextField,
+    TextField, Tooltip,
 } from '@mui/material';
 import { Session, createSession, Message, createMessage } from './types'
 import ChatIcon from '@mui/icons-material/Chat';
@@ -165,9 +165,11 @@ function Main() {
                         spacing={2}
                     >
                         <Toolbar variant="dense">
-                            <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
-                                <ChatIcon />
-                            </IconButton>
+                            <Tooltip title="ChatBox">
+                                <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
+                                    <ChatIcon />
+                                </IconButton>
+                            </Tooltip>
                             <Typography variant="h5" color="inherit" component="div">
                                 ChatBox
                             </Typography>
@@ -216,7 +218,9 @@ function Main() {
 
                         <MenuItem onClick={() => store.createEmptyChatSession()} >
                             <ListItemIcon>
-                                <IconButton><AddIcon fontSize="small" /></IconButton>
+                                <Tooltip title="Create new chat">
+                                    <IconButton><AddIcon fontSize="small" /></IconButton>
+                                </Tooltip>
                             </ListItemIcon>
                             <ListItemText>
                                 New Chat
@@ -230,7 +234,9 @@ function Main() {
                         }}
                         >
                             <ListItemIcon>
-                                <IconButton><SettingsIcon fontSize="small" /></IconButton>
+                                <Tooltip title="Open settings">
+                                    <IconButton><SettingsIcon fontSize="small" /></IconButton>
+                                </Tooltip>
                             </ListItemIcon>
                             <ListItemText>
                                 Settings
@@ -245,9 +251,11 @@ function Main() {
                             openLink('https://github.com/Bin-Huang/chatbox/releases')
                         }}>
                             <ListItemIcon>
-                                <IconButton>
-                                    <InfoOutlinedIcon fontSize="small" />
-                                </IconButton>
+                                <Tooltip title="Check for updates">
+                                    <IconButton>
+                                        <InfoOutlinedIcon fontSize="small" />
+                                    </IconButton>
+                                </Tooltip>
                             </ListItemIcon>
                             <ListItemText>
                                 <Badge color="primary" variant="dot" invisible={!needCheckUpdate} sx={{ paddingRight: '8px' }} >
@@ -270,17 +278,21 @@ function Main() {
                         padding: '20px 0',
                     }} spacing={2}>
                         <Toolbar variant="dense">
-                            <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
-                                <ChatBubbleOutlineOutlinedIcon />
-                            </IconButton>
+                            <Tooltip title="Current conversation">
+                                <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
+                                    <ChatBubbleOutlineOutlinedIcon />
+                                </IconButton>
+                            </Tooltip>
                             <Typography variant="h6" color="inherit" component="div" noWrap sx={{ flexGrow: 1 }}>
                                 {store.currentSession.name}
                             </Typography>
-                            <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}
-                                onClick={() => setSessionClean(store.currentSession)}
-                            >
-                                <CleaningServicesIcon />
-                            </IconButton>
+                            <Tooltip title="Clear all messages">
+                                <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}
+                                    onClick={() => setSessionClean(store.currentSession)}
+                                >
+                                    <CleaningServicesIcon />
+                                </IconButton>
+                            </Tooltip>
                         </Toolbar>
                         <Divider />
                         <List

@@ -3,7 +3,7 @@ import { ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum } fr
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import MenuItem from '@mui/material/MenuItem';
-import { Button, Divider, ListItem, Typography, Grid, TextField, Menu, MenuProps } from '@mui/material';
+import { Button, Divider, ListItem, Typography, Grid, TextField, Menu, MenuProps, Tooltip } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import PersonIcon from '@mui/icons-material/Person';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
@@ -169,19 +169,25 @@ function _Block(props: Props) {
                         {
                             isEditing ? (
                                 <>
-                                <Button onClick={() => setIsEditing(false)}>
-                                    <CheckIcon fontSize='small' />
-                                </Button>
+                                <Tooltip title="Save changes">
+                                    <Button onClick={() => setIsEditing(false)}>
+                                        <CheckIcon fontSize='small' />
+                                    </Button>
+                                </Tooltip>
                                 </>
                             ) : (
                                 isHovering && (
                                     <>
-                                        <Button onClick={() => props.refreshMsg()}>
-                                            <RefreshIcon fontSize='small' />
-                                        </Button>
-                                        <Button onClick={handleClick}>
-                                            <MoreVertIcon />
-                                        </Button>
+                                        <Tooltip title="Regenerate response">
+                                            <Button onClick={() => props.refreshMsg()}>
+                                                <RefreshIcon fontSize='small' />
+                                            </Button>
+                                        </Tooltip>
+                                        <Tooltip title="More actions">
+                                            <Button onClick={handleClick}>
+                                                <MoreVertIcon />
+                                            </Button>
+                                        </Tooltip>
                                         <StyledMenu
                                             MenuListProps={{
                                                 'aria-labelledby': 'demo-customized-button',

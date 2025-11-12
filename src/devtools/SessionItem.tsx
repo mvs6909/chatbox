@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import './App.css';
 import {
     ListItemText, ListItemAvatar, MenuItem, Divider,
-    Avatar, IconButton, Button, TextField, Popper, Fade, Typography, ListItemIcon,
+    Avatar, IconButton, Button, TextField, Popper, Fade, Typography, ListItemIcon, Tooltip,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Session } from './types'
@@ -45,16 +45,20 @@ export default function SessionItem(props: Props) {
             onClick={() => switchMe()}
         >
             <ListItemIcon>
-                <IconButton><ChatBubbleOutlineOutlinedIcon fontSize="small" /></IconButton>
+                <Tooltip title="Chat session">
+                    <IconButton><ChatBubbleOutlineOutlinedIcon fontSize="small" /></IconButton>
+                </Tooltip>
             </ListItemIcon>
             <ListItemText>
                 <Typography variant="inherit" noWrap>
                     {session.name}
                 </Typography>
             </ListItemText>
-            <IconButton onClick={handleClick}>
-                <MoreHorizOutlinedIcon />
-            </IconButton>
+            <Tooltip title="Session options">
+                <IconButton onClick={handleClick}>
+                    <MoreHorizOutlinedIcon />
+                </IconButton>
+            </Tooltip>
             <StyledMenu
                 MenuListProps={{
                     'aria-labelledby': 'long-button',
